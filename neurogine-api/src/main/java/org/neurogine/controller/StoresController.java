@@ -10,7 +10,11 @@ import org.json.simple.JSONObject;
 import org.neurogine.dto.StoresDTO;
 import org.neurogine.entity.Stores;
 import org.neurogine.service.IStoresService;
+import org.neurogine.utils.CommonHelper;
+import org.neurogine.utils.StringUtils;
 import org.neurogine.validators.StoresValidator;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ValidationUtils;
@@ -20,11 +24,15 @@ import static org.neurogine.exception.ApiError.fromFieldError;
 
 import javax.validation.Valid;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static org.neurogine.utils.ResponseBuilder.error;
 import static org.neurogine.utils.ResponseBuilder.success;
+import static org.neurogine.utils.StringUtils.isEmpty;
 import static org.springframework.http.ResponseEntity.badRequest;
 import static org.springframework.http.ResponseEntity.ok;
 
@@ -91,16 +99,28 @@ public class StoresController {
         return ok(success(StoresDTO.from(stores)).getJson());
     }
 
-    @GetMapping("/all-stores")
+    @PostMapping("/all-stores")
     @Operation(summary = "get all stores data", description = "description of get all stores data")
     @ApiResponse(responseCode = "200", content = {
             @Content(mediaType = "application/json", schema = @Schema(
                     implementation = StoresDTO.class)
             )
     })
-    public ResponseEntity<JSONObject> findAll() {
-        List<StoresDTO> storesDTOS = storesService.findAll().stream().map(StoresDTO::from).collect(Collectors.toList());
-        return ok(success(storesDTOS).getJson());
+    public ResponseEntity<JSONObject> findAll(@RequestParam(value = "name", defaultValue = "") String name,
+                                              @RequestParam(value = "category", defaultValue = "") String category,
+                                              @RequestParam(defaultValue = "0") int page,
+                                              @RequestParam(defaultValue = "10") int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        Map<String, Object> response;
+
+        if (isEmpty(name) && isEmpty(category)){
+            response = storesService.findAll(pageable);
+        } else {
+            response = storesService.findByCategoryOrName(name, category, pageable);
+        }
+
+        return ok(success(response).getJson());
     }
 
     @DeleteMapping("/{storesId}")

@@ -4,9 +4,14 @@ import lombok.RequiredArgsConstructor;
 import org.neurogine.entity.Stores;
 import org.neurogine.exception.ResourceNotFoundException;
 import org.neurogine.repository.StoresRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.neurogine.utils.CommonHelper.getData;
 
 @Service
 @RequiredArgsConstructor
@@ -35,7 +40,19 @@ public class StoresService implements IStoresService {
         storesRepository.delete(store);
     }
 
-    public List<Stores> findAll() {
-        return storesRepository.findAll();
+    @Override
+    public Map<String, Object> findAll(Pageable pageable) {
+        Map<String, Object> response = new HashMap<>();
+        Page<Stores> pages = storesRepository.findAll(pageable);
+        getData(pageable, pages, response);
+        return response;
+    }
+
+    @Override
+    public Map<String, Object> findByCategoryOrName(String name, String category, Pageable pageable) {
+        Map<String, Object> response = new HashMap<>();
+        Page<Stores> pages = storesRepository.findByCategoryOrName(name, category, pageable);
+        getData(pageable, pages, response);
+        return response;
     }
 }

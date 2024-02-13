@@ -1,8 +1,9 @@
 package org.neurogine.service;
 
 import org.neurogine.entity.Stores;
+import org.springframework.data.domain.Pageable;
 
-import java.util.List;
+import java.util.Map;
 
 public interface IStoresService {
     Stores save(Stores stores);
@@ -13,5 +14,7 @@ public interface IStoresService {
 
     void delete(String storeId);
 
-    List<Stores> findAll();
+    Map<String, Object> findAll(Pageable pageable);
+
+    Map<String, Object> findByCategoryOrName(String category, String name, Pageable pageable);
 }
