@@ -10,12 +10,10 @@ import org.json.simple.JSONObject;
 import org.neurogine.dto.StoresDTO;
 import org.neurogine.entity.Stores;
 import org.neurogine.service.IStoresService;
-import org.neurogine.validators.StoresValidator;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.ValidationUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -34,16 +32,12 @@ import static org.springframework.http.ResponseEntity.ok;
 @Tag(name = "Store's Data")
 public class StoresController {
 
-    private final StoresValidator storesValidator;
-
     private final IStoresService storesService;
 
     @PostMapping("/save")
     @Operation(summary = "save stores data", description = "description of save stores data")
     @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = StoresDTO.class))})
     public ResponseEntity<JSONObject> save(@Valid @RequestBody StoresDTO dto, BindingResult bindingResult) {
-
-        ValidationUtils.invokeValidator(storesValidator, dto, bindingResult);
 
         if (bindingResult.hasErrors()) {
             return badRequest().body(error(fromFieldError(bindingResult)).getJson());
@@ -58,8 +52,6 @@ public class StoresController {
     @Operation(summary = "update stores data", description = "description of update stores data")
     @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = StoresDTO.class))})
     public ResponseEntity<JSONObject> update(@Valid @RequestBody StoresDTO dto, BindingResult bindingResult) {
-
-        ValidationUtils.invokeValidator(storesValidator, dto, bindingResult);
 
         if (bindingResult.hasErrors()) {
             return badRequest().body(error(fromFieldError(bindingResult)).getJson());
@@ -102,5 +94,11 @@ public class StoresController {
     public ResponseEntity<JSONObject> delete(@PathVariable String storesId) {
         storesService.delete(storesId);
         return ok(success("delete store data by: " + storesId).getJson());
+    }
+
+    @PostMapping("/setup")
+    public ResponseEntity<JSONObject> setup() {
+        storesService.setUp();
+        return ok(success("set up all data done !!!").getJson());
     }
 }

@@ -10,6 +10,8 @@ public interface IStoresService {
 
     Stores update(Stores stores);
 
+    void setUp();
+
     Stores findById(String storeId);
 
     void delete(String storeId);
